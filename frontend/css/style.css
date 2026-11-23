@@ -1,0 +1,284 @@
+/* College Complaint Management System - Modern Clean Stylesheet */
+
+:root {
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
+  --secondary-color: #0f172a;
+  --accent-color: #06b6d4;
+  --bg-light: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+
+  /* Status Colors */
+  --status-reported: #f59e0b;
+  --status-assigned: #3b82f6;
+  --status-in_progress: #ea580c;
+  --status-resolved: #10b981;
+  --status-verified: #0d9488;
+  --status-closed: #64748b;
+  --status-reopened: #ef4444;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-light);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom Navbar */
+.custom-navbar {
+  background: #ffffff;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.07), 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  color: var(--primary-color) !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-link {
+  font-weight: 500;
+  color: #475569;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: var(--primary-color) !important;
+}
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  color: #ffffff;
+  padding: 4.5rem 1rem;
+  border-radius: 0 0 2rem 2rem;
+  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.25);
+}
+
+/* Cards & Containers */
+.custom-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.custom-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card {
+  border-left: 4px solid var(--primary-color);
+  border-radius: 10px;
+  padding: 1.25rem;
+  background: #ffffff;
+  border-top: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.stat-card.stat-reported { border-left-color: var(--status-reported); }
+.stat-card.stat-assigned { border-left-color: var(--status-assigned); }
+.stat-card.stat-in_progress { border-left-color: var(--status-in_progress); }
+.stat-card.stat-resolved { border-left-color: var(--status-resolved); }
+.stat-card.stat-closed { border-left-color: var(--status-closed); }
+.stat-card.stat-reopened { border-left-color: var(--status-reopened); }
+.stat-card.stat-saved { border-left-color: #8b5cf6; }
+
+/* Status Badges */
+.badge-status {
+  padding: 0.4em 0.8em;
+  font-weight: 600;
+  font-size: 0.78rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-reported { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.badge-assigned { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+.badge-in_progress { background-color: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
+.badge-resolved { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+.badge-verified { background-color: #ccfbf1; color: #115e59; border: 1px solid #99f6e4; }
+.badge-closed { background-color: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+.badge-reopened { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+/* Priority Badges */
+.badge-priority {
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+}
+.badge-priority-low { background-color: #f1f5f9; color: #475569; }
+.badge-priority-medium { background-color: #e0f2fe; color: #0369a1; }
+.badge-priority-high { background-color: #ffedd5; color: #c2410c; }
+.badge-priority-critical { background-color: #fee2e2; color: #b91c1c; font-weight: 700; }
+
+/* Visual Step Lifecycle Stepper */
+.stepper-wrapper {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: 2rem;
+  margin-top: 1rem;
+}
+
+.stepper-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  text-align: center;
+}
+
+.stepper-item::before {
+  position: absolute;
+  content: "";
+  border-bottom: 3px solid #e2e8f0;
+  width: 100%;
+  top: 18px;
+  left: -50%;
+  z-index: 1;
+}
+
+.stepper-item:first-child::before {
+  content: none;
+}
+
+.stepper-item .step-counter {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid #cbd5e1;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.stepper-item .step-name {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.stepper-item.completed .step-counter {
+  background-color: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+.stepper-item.completed::before {
+  border-bottom-color: #10b981;
+}
+
+.stepper-item.active .step-counter {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+  color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+
+.stepper-item.active .step-name {
+  color: #1d4ed8;
+  font-weight: 700;
+}
+
+.stepper-item.reopened .step-counter {
+  background-color: #ef4444;
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+/* Timeline vertical log */
+.timeline-vertical {
+  position: relative;
+  padding-left: 28px;
+}
+
+.timeline-vertical::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  bottom: 0;
+  left: 8px;
+  width: 2px;
+  background-color: #cbd5e1;
+}
+
+.timeline-node {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.timeline-node::before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 2px #93c5fd;
+}
+
+/* Toast Notifications Container */
+#toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1080;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 360px;
+}
+
+.custom-toast {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-left: 4px solid var(--primary-color);
+  padding: 12px 16px;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Footer */
+footer {
+  margin-top: auto;
+  background: #ffffff;
+  border-top: 1px solid var(--border-color);
+}

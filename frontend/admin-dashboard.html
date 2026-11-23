@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — College Complaint System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-light">
+
+  <div id="navbar-container"></div>
+
+  <main class="container my-5">
+    
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+      <div>
+        <h3 class="fw-bold mb-1">Central Administration Hub</h3>
+        <p class="text-muted small mb-0">Campus Overview, Staff Assignments, and Duplicate Avoidance Analytics</p>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary btn-sm" onclick="openCategoryModal()">
+          <i class="bi bi-tags me-1"></i> Manage Categories
+        </button>
+        <a href="/report.html" class="btn btn-primary btn-sm fw-semibold">
+          <i class="bi bi-plus-circle me-1"></i> Log Complaint
+        </a>
+      </div>
+    </div>
+
+    <!-- 8 Metric Cards Grid -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3 col-lg-3">
+        <div class="stat-card stat-assigned">
+          <div class="text-muted small fw-semibold">Total Complaints</div>
+          <div class="display-6 fw-bold text-dark mt-1" id="metricTotal">0</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 col-lg-3">
+        <div class="stat-card stat-reported">
+          <div class="text-muted small fw-semibold">Reported (Pending Assign)</div>
+          <div class="display-6 fw-bold text-warning mt-1" id="metricReported">0</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 col-lg-3">
+        <div class="stat-card stat-assigned">
+          <div class="text-muted small fw-semibold">Assigned</div>
+          <div class="display-6 fw-bold text-primary mt-1" id="metricAssigned">0</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 col-lg-3">
+        <div class="stat-card stat-in_progress">
+          <div class="text-muted small fw-semibold">In Progress</div>
+          <div class="display-6 fw-bold text-danger mt-1" id="metricInProgress">0</div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3 col-lg-3">
+        <div class="stat-card stat-resolved">
+          <div class="text-muted small fw-semibold">Resolved (Pending Verify)</div>
+          <div class="display-6 fw-bold text-success mt-1" id="metricResolved">0</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 col-lg-3">
+        <div class="stat-card stat-closed">
+          <div class="text-muted small fw-semibold">Verified & Closed</div>
+          <div class="display-6 fw-bold text-secondary mt-1" id="metricClosed">0</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 col-lg-3">
+        <div class="stat-card stat-reopened">
+          <div class="text-muted small fw-semibold">Reopened by Students</div>
+          <div class="display-6 fw-bold text-danger mt-1" id="metricReopened">0</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 col-lg-3">
+        <div class="stat-card stat-saved">
+          <div class="text-muted small fw-semibold">Duplicates Avoided 🚀</div>
+          <div class="display-6 fw-bold text-purple mt-1 text-primary" id="metricDuplicatesAvoided">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter & Search Matrix -->
+    <div class="custom-card p-3 mb-4 shadow-sm">
+      <div class="row g-2 align-items-center">
+        <div class="col-md-3">
+          <input type="text" class="form-control form-control-sm" id="searchQuery" placeholder="Search ID, title, location..." onkeyup="fetchAdminComplaints()">
+        </div>
+        <div class="col-md-2">
+          <select class="form-select form-select-sm" id="filterStatus" onchange="fetchAdminComplaints()">
+            <option value="all">All Statuses</option>
+            <option value="reported">Reported</option>
+            <option value="assigned">Assigned</option>
+            <option value="in_progress">In Progress</option>
+            <option value="resolved">Resolved</option>
+            <option value="verified">Verified</option>
+            <option value="closed">Closed</option>
+            <option value="reopened">Reopened</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select form-select-sm" id="filterCategory" onchange="fetchAdminComplaints()">
+            <option value="all">All Categories</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <select class="form-select form-select-sm" id="filterPriority" onchange="fetchAdminComplaints()">
+            <option value="all">All Priorities</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </div>
+        <div class="col-md-2 text-end">
+          <button class="btn btn-sm btn-outline-secondary w-100" onclick="document.getElementById('searchQuery').value=''; document.getElementById('filterStatus').value='all'; document.getElementById('filterPriority').value='all'; document.getElementById('filterCategory').value='all'; fetchAdminComplaints();">
+            <i class="bi bi-arrow-clockwise me-1"></i> Reset Filters
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Master Complaints Table -->
+    <div class="custom-card p-4 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0"><i class="bi bi-table text-primary me-2"></i>Campus Complaints Master Registry</h5>
+        <span class="text-muted small"><i class="bi bi-broadcast text-success me-1"></i>Live Socket.IO updates</span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Complaint ID</th>
+              <th scope="col">Title & Location</th>
+              <th scope="col">Category</th>
+              <th scope="col">Priority</th>
+              <th scope="col">Status</th>
+              <th scope="col">Assigned Staff</th>
+              <th scope="col">Reporter</th>
+              <th scope="col">Date</th>
+              <th scope="col" class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="adminComplaintsTableBody">
+            <!-- Populated via admin.js -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div id="adminEmptyState" class="text-center py-5 d-none">
+        <div class="text-muted mb-2"><i class="bi bi-search fs-2"></i></div>
+        <h6 class="fw-bold">No complaints match your current filter</h6>
+        <p class="text-muted small mb-0">Try changing status or clearing the search text.</p>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Assign Staff Modal -->
+  <div class="modal fade" id="assignModal" tabindex="-1" aria-labelledby="assignModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title fw-bold" id="assignModalLabel">
+            <i class="bi bi-person-gear me-2"></i> Assign Maintenance Staff
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="mb-3 p-2 bg-light rounded border">
+            <div class="small text-muted">Assigning Complaint:</div>
+            <strong id="assignComplaintIdText" class="font-monospace text-primary">CMP-2026-00000</strong>
+            <div class="small fw-semibold text-dark" id="assignComplaintTitleText">Issue Title</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="assignStaffSelect" class="form-label fw-semibold">Select Responsible Staff Member *</label>
+            <select class="form-select" id="assignStaffSelect" required>
+              <option value="">-- Choose Staff Member --</option>
+            </select>
+            <div class="form-text small">Assigning staff will transition status from Reported to <strong>ASSIGNED</strong> and notify the officer.</div>
+          </div>
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary fw-semibold px-4" onclick="submitAssignStaff()">
+            <i class="bi bi-check2 me-1"></i> Confirm Assignment
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Management Modal -->
+  <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content shadow">
+        <div class="modal-header bg-dark text-white">
+          <h5 class="modal-title fw-bold" id="categoryModalLabel"><i class="bi bi-tags me-2"></i>Manage Complaint Categories</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          
+          <!-- Add Category Form -->
+          <form id="addCategoryForm" onsubmit="handleAddCategory(event)" class="card p-3 bg-light mb-4 border">
+            <h6 class="fw-bold mb-2">Create New Category</h6>
+            <div class="row g-2">
+              <div class="col-md-5">
+                <input type="text" class="form-control form-control-sm" name="categoryName" placeholder="Category Name (e.g. Sports Equipment)" required>
+              </div>
+              <div class="col-md-5">
+                <input type="text" class="form-control form-control-sm" name="categoryDesc" placeholder="Description...">
+              </div>
+              <div class="col-md-2">
+                <button type="submit" class="btn btn-primary btn-sm w-100 fw-semibold">Add</button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Current Categories List -->
+          <h6 class="fw-bold mb-2">Existing System Categories</h6>
+          <ul class="list-group" id="adminCategoryList" style="max-height: 320px; overflow-y: auto;">
+            <li class="list-group-item text-muted">Loading categories...</li>
+          </ul>
+
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/socket.js"></script>
+  <script src="/js/complaint.js"></script>
+  <script src="/js/admin.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      Auth.renderNavbar('dashboard');
+      loadCategories('filterCategory');
+      loadAdminDashboard();
+    });
+  </script>
+</body>
+</html>

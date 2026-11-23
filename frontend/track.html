@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Complaint Status — College Complaint Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-light">
+
+  <div id="navbar-container"></div>
+
+  <main class="container my-5">
+    
+    <!-- Search Box -->
+    <div class="row justify-content-center mb-4">
+      <div class="col-lg-7 text-center">
+        <h3 class="fw-bold mb-2">Track Complaint in Real-Time</h3>
+        <p class="text-muted small mb-4">Enter your unique Complaint ID (e.g. CMP-2026-00120) to view live progress.</p>
+        
+        <form id="trackForm" onsubmit="handleTrackSearch(event)" class="card p-2 shadow-sm border">
+          <div class="input-group input-group-lg">
+            <span class="input-group-text bg-white border-0"><i class="bi bi-search text-primary"></i></span>
+            <input type="text" class="form-control border-0 font-monospace" id="trackInput" placeholder="Enter Complaint ID (e.g. CMP-2026-00120)" required>
+            <button class="btn btn-primary px-4 fw-semibold" type="submit" id="btnTrack">Track Now</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="trackLoading" class="text-center py-5 d-none">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2 text-muted small">Fetching live complaint details...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="trackError" class="alert alert-danger mx-auto text-center d-none" style="max-width: 600px;">
+      <i class="bi bi-exclamation-octagon-fill me-2"></i><span id="errorMessage">Complaint not found.</span>
+    </div>
+
+    <!-- Complaint Tracking Card -->
+    <div id="trackResult" class="row justify-content-center d-none">
+      <div class="col-lg-9">
+        
+        <div class="custom-card p-4 p-sm-5 mb-4">
+          
+          <!-- Header info -->
+          <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 border-bottom pb-4 mb-4">
+            <div>
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="display-6 font-monospace fw-bold text-primary" id="trackId">CMP-2026-00000</span>
+                <span class="badge badge-status" id="trackBadgeStatus">REPORTED</span>
+              </div>
+              <h4 class="fw-bold mb-1 text-dark" id="trackTitle">Water leakage in washroom</h4>
+              <div class="text-muted small">
+                <i class="bi bi-geo-alt me-1"></i><span id="trackLocation" class="fw-semibold">C Block, Floor 2</span> •
+                <i class="bi bi-tag ms-2 me-1"></i><span id="trackCategory">Water</span> •
+                <i class="bi bi-flag ms-2 me-1"></i>Priority: <span id="trackPriority" class="badge badge-priority badge-priority-medium">MEDIUM</span>
+              </div>
+            </div>
+
+            <div class="text-end">
+              <span class="badge bg-light text-dark border p-2 mb-1 d-inline-block">
+                <i class="bi bi-people-fill text-primary me-1"></i> <span id="trackParticipantCount" class="fw-bold">1</span> Affected Student(s)
+              </span>
+              <div class="small text-muted" id="trackCreatedDate">Reported: Aug 31, 2026</div>
+            </div>
+          </div>
+
+          <!-- Visual Stepper Progress Bar -->
+          <div class="mb-5">
+            <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-diagram-3 me-1"></i>Live Lifecycle Progress</h6>
+            <div class="stepper-wrapper" id="lifecycleStepper">
+              <div class="stepper-item" id="step-reported">
+                <div class="step-counter"><i class="bi bi-file-earmark-text"></i></div>
+                <div class="step-name">1. Reported</div>
+              </div>
+              <div class="stepper-item" id="step-assigned">
+                <div class="step-counter"><i class="bi bi-person-gear"></i></div>
+                <div class="step-name">2. Assigned</div>
+              </div>
+              <div class="stepper-item" id="step-in_progress">
+                <div class="step-counter"><i class="bi bi-tools"></i></div>
+                <div class="step-name">3. In Progress</div>
+              </div>
+              <div class="stepper-item" id="step-resolved">
+                <div class="step-counter"><i class="bi bi-camera"></i></div>
+                <div class="step-name">4. Resolved & Proof</div>
+              </div>
+              <div class="stepper-item" id="step-closed">
+                <div class="step-counter"><i class="bi bi-patch-check"></i></div>
+                <div class="step-name">5. Verified / Closed</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="mb-4">
+            <h6 class="fw-bold text-secondary">Description</h6>
+            <p class="p-3 bg-light rounded text-dark mb-0" id="trackDescription"></p>
+          </div>
+
+          <!-- Resolution Proof Section (If Resolved/Closed) -->
+          <div id="resolutionProofSection" class="card border-success p-3 mb-4 bg-success-subtle d-none">
+            <h6 class="fw-bold text-success-emphasis mb-2"><i class="bi bi-patch-check-fill me-1"></i>Resolution Evidence Provided by Staff</h6>
+            <p class="mb-2 text-dark" id="resolutionDescriptionText"></p>
+            <div id="resolutionProofMedia" class="mt-2"></div>
+          </div>
+
+          <!-- Reopen Alert (If Reopened) -->
+          <div id="reopenedAlertSection" class="alert alert-danger d-none">
+            <h6 class="fw-bold mb-1"><i class="bi bi-exclamation-triangle-fill me-1"></i>Complaint Reopened by Student</h6>
+            <div id="reopenReasonText" class="small"></div>
+          </div>
+
+          <!-- Status Timeline History -->
+          <div>
+            <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-clock-history me-1"></i>Audit Timeline History</h6>
+            <div class="timeline-vertical" id="timelineContainer"></div>
+          </div>
+
+          <!-- Link to full details / student verification -->
+          <div class="mt-4 pt-3 border-top text-end">
+            <a href="#" id="btnFullDetailsLink" class="btn btn-outline-primary">
+              <i class="bi bi-box-arrow-up-right me-1"></i> Open Details & Verification View
+            </a>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/socket.js"></script>
+  <script>
+    let currentTrackingComplaintId = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      Auth.renderNavbar('track');
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const idParam = urlParams.get('id');
+      if (idParam) {
+        document.getElementById('trackInput').value = idParam;
+        performTrack(idParam);
+      }
+    });
+
+    function handleTrackSearch(e) {
+      e.preventDefault();
+      const id = document.getElementById('trackInput').value.trim();
+      if (id) {
+        performTrack(id);
+      }
+    }
+
+    async function performTrack(complaintId) {
+      currentTrackingComplaintId = complaintId.toUpperCase();
+      const loadingEl = document.getElementById('trackLoading');
+      const errorEl = document.getElementById('trackError');
+      const resultEl = document.getElementById('trackResult');
+
+      loadingEl.classList.remove('d-none');
+      errorEl.classList.add('d-none');
+      resultEl.classList.add('d-none');
+
+      try {
+        const res = await fetch(`/api/complaints/track/${currentTrackingComplaintId}`);
+        const result = await res.json();
+        loadingEl.classList.add('d-none');
+
+        if (result.success && result.data) {
+          renderTrackingData(result.data);
+          resultEl.classList.remove('d-none');
+          // Subscribe to real-time updates for this specific complaint
+          if (typeof Realtime !== 'undefined') {
+            Realtime.joinComplaintRoom(currentTrackingComplaintId);
+          }
+        } else {
+          document.getElementById('errorMessage').textContent = result.message || 'No complaint found with this ID.';
+          errorEl.classList.remove('d-none');
+        }
+      } catch (err) {
+        loadingEl.classList.add('d-none');
+        document.getElementById('errorMessage').textContent = 'Network error fetching tracking details.';
+        errorEl.classList.remove('d-none');
+      }
+    }
+
+    function renderTrackingData(c) {
+      document.getElementById('trackId').textContent = c.complaintId;
+      document.getElementById('trackTitle').textContent = c.title;
+      document.getElementById('trackCategory').textContent = c.category;
+      document.getElementById('trackLocation').textContent = `${c.building}${c.floor ? ' - Floor ' + c.floor : ''} (${c.location})`;
+      document.getElementById('trackDescription').textContent = c.description;
+      document.getElementById('trackParticipantCount').textContent = c.participantCount || 1;
+      document.getElementById('trackCreatedDate').textContent = `Reported: ${new Date(c.createdAt).toLocaleDateString()}`;
+
+      // Status Badge
+      const badge = document.getElementById('trackBadgeStatus');
+      badge.className = `badge badge-status badge-${c.status}`;
+      badge.textContent = `● ${c.status.replace('_', ' ').toUpperCase()}`;
+
+      // Priority Badge
+      const priorityEl = document.getElementById('trackPriority');
+      priorityEl.className = `badge badge-priority badge-priority-${c.priority}`;
+      priorityEl.textContent = (c.priority || 'medium').toUpperCase();
+
+      // Stepper
+      updateStepper(c.status);
+
+      // Resolution Section
+      const proofSection = document.getElementById('resolutionProofSection');
+      if (['resolved', 'verified', 'closed'].includes(c.status) && c.resolutionDescription) {
+        proofSection.classList.remove('d-none');
+        document.getElementById('resolutionDescriptionText').textContent = c.resolutionDescription;
+        const mediaContainer = document.getElementById('resolutionProofMedia');
+        if (c.resolutionProof) {
+          if (c.resolutionProof.match(/\.(jpeg|jpg|png|webp|gif)$/i)) {
+            mediaContainer.innerHTML = `<img src="${c.resolutionProof}" class="img-fluid rounded border shadow-sm" style="max-height: 280px;" alt="Resolution Proof">`;
+          } else {
+            mediaContainer.innerHTML = `<a href="${c.resolutionProof}" target="_blank" class="btn btn-sm btn-outline-success"><i class="bi bi-file-earmark-arrow-down me-1"></i> Download / View Attached Proof Document</a>`;
+          }
+        } else {
+          mediaContainer.innerHTML = '<span class="text-muted small fst-italic">Verified by assigned maintenance officer.</span>';
+        }
+      } else {
+        proofSection.classList.add('d-none');
+      }
+
+      // Reopened Alert
+      const reopenSection = document.getElementById('reopenedAlertSection');
+      if (c.status === 'reopened' && c.reopenReason) {
+        reopenSection.classList.remove('d-none');
+        document.getElementById('reopenReasonText').textContent = `Reason: ${c.reopenReason}`;
+      } else {
+        reopenSection.classList.add('d-none');
+      }
+
+      // Timeline
+      const timelineContainer = document.getElementById('timelineContainer');
+      if (c.timeline && c.timeline.length > 0) {
+        timelineContainer.innerHTML = c.timeline.map(t => `
+          <div class="timeline-node">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="badge badge-status badge-${t.newStatus} me-2">${t.newStatus.replace('_', ' ')}</span>
+              <span class="small text-muted">${new Date(t.timestamp).toLocaleString()}</span>
+            </div>
+            <div class="small text-dark fw-semibold">${t.note || 'Status updated'}</div>
+            <div class="small text-muted fst-italic">Logged by: ${t.changedByName || 'System'} (${t.changedByRole || 'system'})</div>
+          </div>
+        `).join('');
+      } else {
+        timelineContainer.innerHTML = '<div class="small text-muted">No timeline logs recorded yet.</div>';
+      }
+
+      // Full details link
+      document.getElementById('btnFullDetailsLink').href = `/complaint-details.html?id=${c.complaintId}`;
+    }
+
+    function updateStepper(status) {
+      const stepMap = {
+        'reported': 1,
+        'assigned': 2,
+        'in_progress': 3,
+        'resolved': 4,
+        'verified': 5,
+        'closed': 5,
+        'reopened': 3
+      };
+
+      const currentStepNum = stepMap[status] || 1;
+
+      const steps = ['reported', 'assigned', 'in_progress', 'resolved', 'closed'];
+      steps.forEach((s, idx) => {
+        const el = document.getElementById(`step-${s}`);
+        if (!el) return;
+        el.className = 'stepper-item';
+
+        if (status === 'reopened' && s === 'in_progress') {
+          el.classList.add('reopened');
+        } else if (idx + 1 < currentStepNum) {
+          el.classList.add('completed');
+        } else if (idx + 1 === currentStepNum) {
+          el.classList.add('active');
+        }
+      });
+    }
+
+    // Real-time update hook
+    if (typeof Realtime !== 'undefined') {
+      Realtime.onUpdate((event, data) => {
+        if (currentTrackingComplaintId && (data.complaintId === currentTrackingComplaintId || (data.complaint && data.complaint.complaintId === currentTrackingComplaintId))) {
+          performTrack(currentTrackingComplaintId);
+        }
+      });
+    }
+  </script>
+</body>
+</html>

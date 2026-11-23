@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report a Complaint — College Complaint Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-light">
+
+  <div id="navbar-container"></div>
+
+  <main class="container my-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        
+        <div class="custom-card p-4 p-sm-5 shadow-sm">
+          
+          <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-3">
+            <div>
+              <h3 class="fw-bold mb-1">Report Campus Issue</h3>
+              <p class="text-muted small mb-0">Fill in the details below. Our smart detector will verify if this issue is already being handled.</p>
+            </div>
+            <div class="rounded-circle bg-primary-subtle text-primary p-3 d-none d-sm-block">
+              <i class="bi bi-megaphone-fill fs-3"></i>
+            </div>
+          </div>
+
+          <form id="complaintForm" onsubmit="handleComplaintSubmit(event)" enctype="multipart/form-data">
+            
+            <!-- Issue Info -->
+            <div class="mb-3">
+              <label for="title" class="form-label fw-semibold">Complaint Title *</label>
+              <input type="text" class="form-control form-control-lg" id="title" name="title" required placeholder="e.g. Water leakage in 2nd floor washroom">
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label for="category" class="form-label fw-semibold">Category *</label>
+                <select class="form-select" id="category" name="category" required>
+                  <option value="">Loading categories...</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label for="priority" class="form-label fw-semibold">Priority Level</label>
+                <select class="form-select" id="priority" name="priority">
+                  <option value="low">Low (Cosmetic / Minor inconvenience)</option>
+                  <option value="medium" selected>Medium (Standard maintenance issue)</option>
+                  <option value="high">High (Urgent / Class or hostel disruption)</option>
+                  <option value="critical">Critical (Safety hazard / Emergency)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label fw-semibold">Detailed Description *</label>
+              <textarea class="form-control" id="description" name="description" rows="4" required placeholder="Describe what the issue is, when it started, and its exact impact..."></textarea>
+            </div>
+
+            <!-- Location Section -->
+            <div class="card bg-light border p-3 mb-3">
+              <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-geo-alt-fill text-danger me-1"></i>Location Information (Used for Duplicate Detection)</h6>
+              
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="building" class="form-label fw-semibold small">Building / Block / Hostel *</label>
+                  <input type="text" class="form-control" id="building" name="building" required placeholder="e.g. C Block, Boys Hostel, Library">
+                </div>
+
+                <div class="col-md-3">
+                  <label for="block" class="form-label fw-semibold small">Block / Wing</label>
+                  <input type="text" class="form-control" id="block" name="block" placeholder="e.g. Block C, West Wing">
+                </div>
+
+                <div class="col-md-3">
+                  <label for="floor" class="form-label fw-semibold small">Floor</label>
+                  <input type="text" class="form-control" id="floor" name="floor" placeholder="e.g. Ground, 2, 3">
+                </div>
+
+                <div class="col-md-6">
+                  <label for="roomArea" class="form-label fw-semibold small">Room / Area Name</label>
+                  <input type="text" class="form-control" id="roomArea" name="roomArea" placeholder="e.g. Room 204, Lab 3, Washroom">
+                </div>
+
+                <div class="col-md-6">
+                  <label for="location" class="form-label fw-semibold small">Specific Landmark / Location *</label>
+                  <input type="text" class="form-control" id="location" name="location" required placeholder="e.g. Near Room 204 water cooler tap">
+                </div>
+              </div>
+            </div>
+
+            <!-- Guest Contact Section (shown if not logged in) -->
+            <div id="guestSection" class="card border p-3 mb-3 bg-white">
+              <h6 class="fw-bold text-secondary mb-2"><i class="bi bi-person-badge me-1"></i>Guest Reporter Details</h6>
+              <p class="text-muted small mb-3">You are reporting as a guest. (Or <a href="/login.html">login as student</a> to link to your profile)</p>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label for="guestName" class="form-label small fw-semibold">Your Name</label>
+                  <input type="text" class="form-control" id="guestName" name="guestName" placeholder="e.g. John Doe">
+                </div>
+                <div class="col-md-4">
+                  <label for="guestEmail" class="form-label small fw-semibold">Email</label>
+                  <input type="email" class="form-control" id="guestEmail" name="guestEmail" placeholder="e.g. john@gmail.com">
+                </div>
+                <div class="col-md-4">
+                  <label for="guestPhone" class="form-label small fw-semibold">Phone Number</label>
+                  <input type="tel" class="form-control" id="guestPhone" name="guestPhone" placeholder="e.g. +91 9876543210">
+                </div>
+              </div>
+            </div>
+
+            <!-- File Upload -->
+            <div class="mb-4">
+              <label for="attachment" class="form-label fw-semibold">Upload Photo / Document (Optional)</label>
+              <input type="file" class="form-control" id="attachment" name="attachment" accept="image/*,application/pdf,video/*">
+              <div class="form-text">Supported formats: JPG, PNG, WEBP, PDF, MP4 (Max 10MB)</div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn btn-primary btn-lg w-100 py-3 fw-bold">
+              <i class="bi bi-send-fill me-2"></i> Submit Complaint
+            </button>
+          </form>
+
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Duplicate Detection Modal -->
+  <div class="modal fade" id="duplicateModal" tabindex="-1" aria-labelledby="duplicateModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-warning shadow">
+        <div class="modal-header bg-warning-subtle">
+          <h5 class="modal-title fw-bold text-dark" id="duplicateModalLabel">
+            <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i> Similar Complaint Already Active
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <p class="mb-3 text-muted">
+            An active complaint matching this category and location has already been registered in the system.
+          </p>
+
+          <div class="card bg-light border p-3 mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="badge bg-primary font-monospace" id="dupComplaintId">CMP-2026-00000</span>
+              <span class="badge bg-warning text-dark" id="dupStatus">IN PROGRESS</span>
+            </div>
+            <h6 class="fw-bold mb-1" id="dupTitle">Existing complaint title</h6>
+            <div class="small text-muted mb-1"><i class="bi bi-tag me-1"></i>Category: <span id="dupCategory" class="fw-semibold">Water</span></div>
+            <div class="small text-muted mb-1"><i class="bi bi-geo-alt me-1"></i>Location: <span id="dupLocation" class="fw-semibold">C Block</span></div>
+            <div class="small text-primary mt-2">
+              <i class="bi bi-people-fill me-1"></i> <strong id="dupParticipants">1</strong> student(s) currently affected
+            </div>
+          </div>
+
+          <p class="small text-muted mb-0">
+            <strong>Join Existing:</strong> Attaches you to this ticket so you receive real-time resolution alerts without creating duplicate work for staff.<br>
+            <strong>Submit Anyway:</strong> Creates a separate ticket if your issue is distinct.
+          </p>
+        </div>
+        <div class="modal-footer bg-light d-flex justify-content-between">
+          <button type="button" class="btn btn-outline-secondary" id="btnProceedAnyway">
+            Submit New Anyway
+          </button>
+          <button type="button" class="btn btn-success fw-bold px-3" id="btnJoinExisting">
+            <i class="bi bi-person-plus-fill me-1"></i> Join Existing Ticket
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Submission Success Modal -->
+  <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-success shadow-lg">
+        <div class="modal-body p-5 text-center">
+          <div class="rounded-circle bg-success-subtle text-success d-inline-flex p-3 mb-3">
+            <i class="bi bi-check-circle-fill display-5"></i>
+          </div>
+          <h4 class="fw-bold mb-2">Complaint Submitted Successfully!</h4>
+          <p class="text-muted small mb-4">Your complaint has been logged and assigned a tracking ID.</p>
+          
+          <div class="p-3 bg-light rounded border mb-4">
+            <div class="text-muted small mb-1">Your Complaint Tracking ID:</div>
+            <div class="display-6 font-monospace fw-bold text-primary" id="successComplaintId">CMP-2026-00000</div>
+          </div>
+
+          <div class="d-flex flex-column gap-2">
+            <a href="#" id="btnTrackSubmitted" class="btn btn-primary py-2 fw-semibold">
+              <i class="bi bi-search me-1"></i> Track Complaint Live
+            </a>
+            <a href="/report.html" class="btn btn-outline-secondary btn-sm">
+              Report Another Issue
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/socket.js"></script>
+  <script src="/js/complaint.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      Auth.renderNavbar('report');
+      loadCategories('category');
+
+      // Hide guest section if user is logged in
+      if (Auth.isLoggedIn()) {
+        const guestSection = document.getElementById('guestSection');
+        if (guestSection) guestSection.classList.add('d-none');
+      }
+    });
+  </script>
+</body>
+</html>

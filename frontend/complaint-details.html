@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complaint Details & Verification — College Complaint Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-light">
+
+  <div id="navbar-container"></div>
+
+  <main class="container my-5">
+    
+    <!-- Loading State -->
+    <div id="detailsLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-2 text-muted small">Loading complaint details and live timeline...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="detailsError" class="alert alert-danger mx-auto text-center d-none" style="max-width: 600px;">
+      <i class="bi bi-exclamation-octagon-fill me-2"></i><span id="errorMessage">Complaint not found.</span>
+    </div>
+
+    <!-- Main Details Container -->
+    <div id="detailsContent" class="row justify-content-center d-none">
+      <div class="col-lg-10">
+        
+        <!-- Action bar top -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back
+          </a>
+          <div id="topActionBtns" class="d-flex gap-2"></div>
+        </div>
+
+        <div class="custom-card p-4 p-sm-5 mb-4 shadow-sm">
+          
+          <!-- Header -->
+          <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 border-bottom pb-4 mb-4">
+            <div>
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="display-6 font-monospace fw-bold text-primary" id="detId">CMP-2026-00000</span>
+                <span class="badge badge-status" id="detBadgeStatus">REPORTED</span>
+                <span class="badge badge-priority" id="detBadgePriority">MEDIUM</span>
+              </div>
+              <h3 class="fw-bold mb-1 text-dark" id="detTitle">Complaint Title</h3>
+              <div class="text-muted small">
+                <i class="bi bi-tag me-1"></i>Category: <strong id="detCategory" class="text-dark">Water</strong> •
+                <i class="bi bi-geo-alt ms-2 me-1"></i>Location: <strong id="detLocation" class="text-dark">C Block - 2nd Floor</strong>
+              </div>
+            </div>
+
+            <div class="text-end">
+              <div class="badge bg-light text-dark border p-2 mb-1">
+                <i class="bi bi-people-fill text-primary me-1"></i> <span id="detParticipantCount" class="fw-bold">1</span> Affected Student(s)
+              </div>
+              <div class="small text-muted" id="detCreatedDate">Reported: Aug 31, 2026</div>
+            </div>
+          </div>
+
+          <!-- Stepper Progress Bar -->
+          <div class="mb-5">
+            <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-diagram-3 me-1"></i>Complaint Lifecycle Progress</h6>
+            <div class="stepper-wrapper" id="detStepper">
+              <div class="stepper-item" id="step-reported">
+                <div class="step-counter"><i class="bi bi-file-earmark-text"></i></div>
+                <div class="step-name">1. Reported</div>
+              </div>
+              <div class="stepper-item" id="step-assigned">
+                <div class="step-counter"><i class="bi bi-person-gear"></i></div>
+                <div class="step-name">2. Assigned</div>
+              </div>
+              <div class="stepper-item" id="step-in_progress">
+                <div class="step-counter"><i class="bi bi-tools"></i></div>
+                <div class="step-name">3. In Progress</div>
+              </div>
+              <div class="stepper-item" id="step-resolved">
+                <div class="step-counter"><i class="bi bi-camera"></i></div>
+                <div class="step-name">4. Resolved & Proof</div>
+              </div>
+              <div class="stepper-item" id="step-closed">
+                <div class="step-counter"><i class="bi bi-patch-check"></i></div>
+                <div class="step-name">5. Verified / Closed</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reopen Alert Banner (If status is reopened) -->
+          <div id="detReopenedAlert" class="alert alert-danger d-none mb-4">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <i class="bi bi-exclamation-triangle-fill fs-4 text-danger"></i>
+              <h6 class="fw-bold mb-0">Complaint Reopened by Student</h6>
+            </div>
+            <p class="small mb-0 text-dark" id="detReopenReason">Reason: Problem still exists.</p>
+          </div>
+
+          <!-- STUDENT VERIFICATION CALLOUT SECTION (If Resolved) -->
+          <div id="verificationSection" class="card border-warning p-4 mb-4 bg-warning-subtle shadow-sm d-none">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="rounded-circle bg-warning text-dark p-2 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                <i class="bi bi-patch-question-fill fs-4"></i>
+              </div>
+              <div>
+                <h5 class="fw-bold mb-0 text-dark">Student Verification Required</h5>
+                <p class="small text-muted mb-0">Maintenance staff marked this issue resolved. Was your problem actually fixed?</p>
+              </div>
+            </div>
+
+            <!-- Resolution description & proof preview -->
+            <div class="bg-white p-3 rounded border mb-3">
+              <div class="small fw-bold text-success mb-1"><i class="bi bi-check2-circle me-1"></i>Staff Resolution Summary:</div>
+              <div class="text-dark mb-2" id="verifResolutionDesc"></div>
+              <div id="verifResolutionMedia"></div>
+            </div>
+
+            <!-- Verification Action Buttons -->
+            <div class="d-flex gap-3 flex-wrap align-items-center" id="verifActionButtons">
+              <button class="btn btn-success fw-bold px-4 py-2" onclick="submitVerification(true)">
+                <i class="bi bi-check-lg me-1"></i> Yes, Problem is Solved (Close Ticket)
+              </button>
+              <button class="btn btn-outline-danger fw-bold px-4 py-2" onclick="toggleReopenForm()">
+                <i class="bi bi-x-lg me-1"></i> No, Problem Still Exists (Reopen)
+              </button>
+            </div>
+
+            <!-- Reopen Reason Input Form (Toggled) -->
+            <div id="reopenInputForm" class="mt-3 p-3 bg-white rounded border d-none">
+              <label for="reopenReasonInput" class="form-label fw-semibold text-danger">
+                Please state why the problem is not solved: *
+              </label>
+              <textarea class="form-control mb-2" id="reopenReasonInput" rows="2" placeholder="e.g. Water is still leaking from the ceiling / AC cooling is still not working..."></textarea>
+              <div class="d-flex gap-2">
+                <button class="btn btn-danger btn-sm fw-semibold" onclick="submitVerification(false)">
+                  <i class="bi bi-arrow-repeat me-1"></i> Confirm Reopen Ticket
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="toggleReopenForm()">Cancel</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description & Details Grid -->
+          <div class="row g-4 mb-4">
+            <div class="col-md-7">
+              <h6 class="fw-bold text-secondary mb-2">Description</h6>
+              <div class="p-3 bg-light rounded text-dark mb-3" id="detDescription"></div>
+
+              <!-- Reporter Attachment (if any) -->
+              <div id="detAttachmentSection" class="d-none">
+                <h6 class="fw-bold text-secondary mb-2">Reporter Attached Photo / File</h6>
+                <div id="detAttachmentContent" class="mb-3"></div>
+              </div>
+
+              <!-- Resolution Proof Display (If Closed) -->
+              <div id="detResolvedProofDisplay" class="card border-success p-3 bg-success-subtle d-none">
+                <h6 class="fw-bold text-success-emphasis mb-1"><i class="bi bi-patch-check-fill me-1"></i>Resolution Evidence</h6>
+                <p class="text-dark small mb-2" id="detResolvedDescText"></p>
+                <div id="detResolvedMediaContainer"></div>
+              </div>
+            </div>
+
+            <div class="col-md-5">
+              <div class="card p-3 bg-light border">
+                <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-info-circle me-1"></i>Ticket Metadata</h6>
+                
+                <div class="mb-2">
+                  <div class="small text-muted">Building & Room</div>
+                  <div class="fw-semibold text-dark" id="detMetaBuilding">-</div>
+                </div>
+
+                <div class="mb-2">
+                  <div class="small text-muted">Specific Location Landmark</div>
+                  <div class="fw-semibold text-dark" id="detMetaLocation">-</div>
+                </div>
+
+                <div class="mb-2">
+                  <div class="small text-muted">Assigned Staff</div>
+                  <div class="fw-semibold text-primary" id="detMetaStaff">Unassigned</div>
+                </div>
+
+                <div class="mb-2">
+                  <div class="small text-muted">Reported By</div>
+                  <div class="fw-semibold text-dark" id="detMetaReporter">-</div>
+                </div>
+
+                <!-- Join Complaint Button (If student & not yet participant) -->
+                <div id="joinComplaintBtnContainer" class="mt-3 pt-2 border-top d-none">
+                  <button class="btn btn-outline-primary btn-sm w-100 fw-semibold" onclick="joinThisComplaint()">
+                    <i class="bi bi-person-plus-fill me-1"></i> I'm Also Affected (Join Ticket)
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status Audit History Timeline -->
+          <div class="mt-4 pt-4 border-top">
+            <h5 class="fw-bold text-secondary mb-3"><i class="bi bi-clock-history me-1"></i>Complete Audit History Timeline</h5>
+            <div class="timeline-vertical" id="detTimelineContainer"></div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/socket.js"></script>
+  <script>
+    let currentComplaintData = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      Auth.renderNavbar();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get('id');
+
+      if (id) {
+        loadComplaintDetails(id);
+      } else {
+        document.getElementById('detailsLoading').classList.add('d-none');
+        document.getElementById('errorMessage').textContent = 'No complaint ID specified in URL.';
+        document.getElementById('detailsError').classList.remove('d-none');
+      }
+    });
+
+    async function loadComplaintDetails(id) {
+      const headers = {};
+      if (Auth.isLoggedIn()) {
+        headers['Authorization'] = `Bearer ${Auth.getToken()}`;
+      }
+
+      try {
+        const res = await fetch(`/api/complaints/${id}`, { headers });
+        const result = await res.json();
+
+        document.getElementById('detailsLoading').classList.add('d-none');
+
+        if (result.success && result.data) {
+          currentComplaintData = result.data;
+          renderDetails(currentComplaintData);
+          document.getElementById('detailsContent').classList.remove('d-none');
+
+          // Join Socket room
+          if (typeof Realtime !== 'undefined') {
+            Realtime.joinComplaintRoom(currentComplaintData.complaintId);
+          }
+        } else {
+          document.getElementById('errorMessage').textContent = result.message || 'Complaint not found.';
+          document.getElementById('detailsError').classList.remove('d-none');
+        }
+      } catch (err) {
+        document.getElementById('detailsLoading').classList.add('d-none');
+        document.getElementById('errorMessage').textContent = 'Error connecting to server.';
+        document.getElementById('detailsError').classList.remove('d-none');
+      }
+    }
+
+    function renderDetails(c) {
+      document.getElementById('detId').textContent = c.complaintId;
+      document.getElementById('detTitle').textContent = c.title;
+      document.getElementById('detCategory').textContent = c.category;
+      document.getElementById('detLocation').textContent = `${c.building}${c.floor ? ' - Fl ' + c.floor : ''} (${c.location})`;
+      document.getElementById('detDescription').textContent = c.description;
+      document.getElementById('detCreatedDate').textContent = `Reported: ${new Date(c.createdAt).toLocaleString()}`;
+      document.getElementById('detParticipantCount').textContent = (c.participants || []).length + 1;
+
+      // Badges
+      const badgeStatus = document.getElementById('detBadgeStatus');
+      badgeStatus.className = `badge badge-status badge-${c.status}`;
+      badgeStatus.textContent = `● ${c.status.replace('_', ' ').toUpperCase()}`;
+
+      const badgePriority = document.getElementById('detBadgePriority');
+      badgePriority.className = `badge badge-priority badge-priority-${c.priority}`;
+      badgePriority.textContent = (c.priority || 'medium').toUpperCase();
+
+      // Stepper
+      updateDetailsStepper(c.status);
+
+      // Metadata
+      document.getElementById('detMetaBuilding').textContent = `${c.building} ${c.block ? '(' + c.block + ')' : ''} ${c.roomArea ? '- ' + c.roomArea : ''}`;
+      document.getElementById('detMetaLocation').textContent = c.location;
+      document.getElementById('detMetaStaff').textContent = c.assignedStaff ? `${c.assignedStaff.name} (${c.assignedStaff.department || 'Staff'})` : 'Unassigned';
+
+      if (c.reporter) {
+        document.getElementById('detMetaReporter').textContent = `${c.reporter.name} (${c.reporter.studentId || c.reporter.email})`;
+      } else {
+        document.getElementById('detMetaReporter').textContent = `Guest: ${c.guestContact?.name || 'Anonymous'}`;
+      }
+
+      // Reporter Attachments
+      const attachmentSection = document.getElementById('detAttachmentSection');
+      const attachmentContent = document.getElementById('detAttachmentContent');
+      if (c.attachments && c.attachments.length > 0) {
+        attachmentSection.classList.remove('d-none');
+        attachmentContent.innerHTML = c.attachments.map(att => {
+          if (att.match(/\.(jpeg|jpg|png|webp|gif)$/i)) {
+            return `<img src="${att}" class="img-fluid rounded border shadow-sm me-2 mb-2" style="max-height: 200px;" alt="Attachment">`;
+          }
+          return `<a href="${att}" target="_blank" class="btn btn-sm btn-outline-secondary me-2 mb-2"><i class="bi bi-file-earmark me-1"></i> View Attachment</a>`;
+        }).join('');
+      } else {
+        attachmentSection.classList.add('d-none');
+      }
+
+      // Reopened Alert
+      const reopenAlert = document.getElementById('detReopenedAlert');
+      if (c.status === 'reopened' && c.reopenReason) {
+        reopenAlert.classList.remove('d-none');
+        document.getElementById('detReopenReason').textContent = `Reason: ${c.reopenReason}`;
+      } else {
+        reopenAlert.classList.add('d-none');
+      }
+
+      // Student Verification Section (if status === 'resolved')
+      const verifSection = document.getElementById('verificationSection');
+      if (c.status === 'resolved') {
+        verifSection.classList.remove('d-none');
+        document.getElementById('verifResolutionDesc').textContent = c.resolutionDescription || 'Staff marked issue as resolved.';
+        const mediaContainer = document.getElementById('verifResolutionMedia');
+        if (c.resolutionProof) {
+          if (c.resolutionProof.match(/\.(jpeg|jpg|png|webp|gif)$/i)) {
+            mediaContainer.innerHTML = `<img src="${c.resolutionProof}" class="img-fluid rounded border shadow-sm" style="max-height: 250px;" alt="Resolution Proof">`;
+          } else {
+            mediaContainer.innerHTML = `<a href="${c.resolutionProof}" target="_blank" class="btn btn-sm btn-outline-success"><i class="bi bi-file-earmark-arrow-down me-1"></i> View Attached Proof Document</a>`;
+          }
+        } else {
+          mediaContainer.innerHTML = '';
+        }
+      } else {
+        verifSection.classList.add('d-none');
+      }
+
+      // Resolution proof display for closed status
+      const resolvedProofDisplay = document.getElementById('detResolvedProofDisplay');
+      if (c.status === 'closed' && c.resolutionDescription) {
+        resolvedProofDisplay.classList.remove('d-none');
+        document.getElementById('detResolvedDescText').textContent = c.resolutionDescription;
+        const media = document.getElementById('detResolvedMediaContainer');
+        if (c.resolutionProof) {
+          if (c.resolutionProof.match(/\.(jpeg|jpg|png|webp|gif)$/i)) {
+            media.innerHTML = `<img src="${c.resolutionProof}" class="img-fluid rounded border shadow-sm" style="max-height: 200px;" alt="Proof">`;
+          } else {
+            media.innerHTML = `<a href="${c.resolutionProof}" target="_blank" class="btn btn-sm btn-outline-success"><i class="bi bi-file-earmark me-1"></i> View Proof File</a>`;
+          }
+        }
+      } else {
+        resolvedProofDisplay.classList.add('d-none');
+      }
+
+      // Join button condition
+      const joinContainer = document.getElementById('joinComplaintBtnContainer');
+      const currentUser = Auth.getUser();
+      if (currentUser && currentUser.role === 'student' && c.status !== 'closed') {
+        const isReporter = c.reporter && (c.reporter._id === currentUser._id || c.reporter === currentUser._id);
+        const isParticipant = (c.participants || []).some(p => (p._id === currentUser._id || p === currentUser._id));
+        if (!isReporter && !isParticipant) {
+          joinContainer.classList.remove('d-none');
+        } else {
+          joinContainer.classList.add('d-none');
+        }
+      } else {
+        joinContainer.classList.add('d-none');
+      }
+
+      // Timeline render
+      const timelineContainer = document.getElementById('detTimelineContainer');
+      if (c.timeline && c.timeline.length > 0) {
+        timelineContainer.innerHTML = c.timeline.map(t => `
+          <div class="timeline-node">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="badge badge-status badge-${t.newStatus} me-2">${t.newStatus.replace('_', ' ')}</span>
+              <span class="small text-muted">${new Date(t.timestamp).toLocaleString()}</span>
+            </div>
+            <div class="small text-dark fw-semibold">${t.note || 'Status updated'}</div>
+            <div class="small text-muted fst-italic">Changed by: ${t.changedByName || 'System'} (${t.changedByRole || 'system'})</div>
+          </div>
+        `).join('');
+      } else {
+        timelineContainer.innerHTML = '<div class="small text-muted">No timeline logs recorded yet.</div>';
+      }
+    }
+
+    function updateDetailsStepper(status) {
+      const stepMap = {
+        'reported': 1,
+        'assigned': 2,
+        'in_progress': 3,
+        'resolved': 4,
+        'verified': 5,
+        'closed': 5,
+        'reopened': 3
+      };
+
+      const currentStepNum = stepMap[status] || 1;
+      const steps = ['reported', 'assigned', 'in_progress', 'resolved', 'closed'];
+
+      steps.forEach((s, idx) => {
+        const el = document.getElementById(`step-${s}`);
+        if (!el) return;
+        el.className = 'stepper-item';
+
+        if (status === 'reopened' && s === 'in_progress') {
+          el.classList.add('reopened');
+        } else if (idx + 1 < currentStepNum) {
+          el.classList.add('completed');
+        } else if (idx + 1 === currentStepNum) {
+          el.classList.add('active');
+        }
+      });
+    }
+
+    function toggleReopenForm() {
+      const form = document.getElementById('reopenInputForm');
+      form.classList.toggle('d-none');
+    }
+
+    // Submit Verification (Accept / Reopen)
+    async function submitVerification(verified) {
+      if (!Auth.isLoggedIn()) {
+        alert('Please log in to verify this complaint resolution.');
+        window.location.href = `/login.html?redirect=${encodeURIComponent(window.location.href)}`;
+        return;
+      }
+
+      let payload = { verified };
+      if (!verified) {
+        const reason = document.getElementById('reopenReasonInput').value.trim();
+        if (!reason) {
+          showToast('Please provide a reason why the problem is not solved', 'error');
+          return;
+        }
+        payload.reason = reason;
+      }
+
+      try {
+        const res = await fetch(`/api/complaints/${currentComplaintData.complaintId}/verify`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${Auth.getToken()}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+
+        if (result.success) {
+          showToast(verified ? 'Complaint verified and closed!' : 'Complaint reopened for staff review.', 'success');
+          loadComplaintDetails(currentComplaintData.complaintId);
+        } else {
+          showToast(result.message || 'Verification failed', 'error');
+        }
+      } catch (err) {
+        console.error('Verify error:', err);
+        showToast('Server error submitting verification', 'error');
+      }
+    }
+
+    // Join this complaint
+    async function joinThisComplaint() {
+      if (!Auth.isLoggedIn()) {
+        alert('Please log in with your Student account to join.');
+        window.location.href = `/login.html?redirect=${encodeURIComponent(window.location.href)}`;
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/complaints/${currentComplaintData.complaintId}/join`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${Auth.getToken()}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          showToast('Successfully joined! You will receive live updates.', 'success');
+          loadComplaintDetails(currentComplaintData.complaintId);
+        } else {
+          showToast(result.message || 'Could not join complaint', 'error');
+        }
+      } catch (err) {
+        showToast('Failed to join complaint', 'error');
+      }
+    }
+
+    // Real-time update hook
+    if (typeof Realtime !== 'undefined') {
+      Realtime.onUpdate((event, data) => {
+        if (currentComplaintData && (data.complaintId === currentComplaintData.complaintId || (data.complaint && data.complaint.complaintId === currentComplaintData.complaintId))) {
+          loadComplaintDetails(currentComplaintData.complaintId);
+        }
+      });
+    }
+  </script>
+</body>
+</html>
