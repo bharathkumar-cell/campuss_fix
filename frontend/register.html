@@ -114,18 +114,58 @@
       const role = document.getElementById('accountRole').value;
       const studentIdField = document.getElementById('studentId').closest('.col-sm-6');
       const yearField = document.getElementById('year').closest('.col-sm-6');
+      const departmentSelect = document.getElementById('department');
 
       if (role === 'student') {
         studentIdField.classList.remove('d-none');
         yearField.classList.remove('d-none');
         document.getElementById('studentId').required = false;
         document.querySelector('label[for="department"]').textContent = 'Department';
+        departmentSelect.innerHTML = `
+          <option value="Computer Science">Computer Science</option>
+          <option value="Information Technology">Information Technology</option>
+          <option value="Electronics & Comm.">Electronics & Comm.</option>
+          <option value="Mechanical Engineering">Mechanical Engineering</option>
+          <option value="Civil Engineering">Civil Engineering</option>
+          <option value="Electrical Engineering">Electrical Engineering</option>
+          <option value="Management Studies">Management Studies</option>
+          <option value="Other">Other</option>
+        `;
+      } else if (role === 'staff') {
+        studentIdField.classList.add('d-none');
+        yearField.classList.add('d-none');
+        document.getElementById('studentId').value = '';
+        document.getElementById('year').value = '';
+        document.querySelector('label[for="department"]').textContent = 'Staff Role';
+        departmentSelect.innerHTML = `
+          <option value="Electrician">Electrician</option>
+          <option value="Plumber">Plumber</option>
+          <option value="Carpenter">Carpenter</option>
+          <option value="Mason">Mason</option>
+          <option value="Painter">Painter</option>
+          <option value="HVAC / AC Technician">HVAC / AC Technician</option>
+          <option value="IT / Network Technician">IT / Network Technician</option>
+          <option value="Cleaning & Sanitation Staff">Cleaning & Sanitation Staff</option>
+          <option value="Security Staff">Security Staff</option>
+          <option value="Transport Staff">Transport Staff</option>
+          <option value="General Maintenance">General Maintenance</option>
+        `;
       } else {
         studentIdField.classList.add('d-none');
         yearField.classList.add('d-none');
         document.getElementById('studentId').value = '';
         document.getElementById('year').value = '';
-        document.querySelector('label[for="department"]').textContent = role === 'faculty' ? 'Faculty Department' : 'Staff Department';
+        document.querySelector('label[for="department"]').textContent = 'Faculty Department';
+        departmentSelect.innerHTML = `
+          <option value="Computer Science">Computer Science</option>
+          <option value="Information Technology">Information Technology</option>
+          <option value="Electronics & Comm.">Electronics & Comm.</option>
+          <option value="Mechanical Engineering">Mechanical Engineering</option>
+          <option value="Civil Engineering">Civil Engineering</option>
+          <option value="Electrical Engineering">Electrical Engineering</option>
+          <option value="Management Studies">Management Studies</option>
+          <option value="Other">Other</option>
+        `;
       }
     }
 
